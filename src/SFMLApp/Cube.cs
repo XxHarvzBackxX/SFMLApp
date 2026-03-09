@@ -8,15 +8,28 @@ public class Cube
     public Vector3f Position { get; set; }
     public float Scale { get; set; }
     public Vector3f Rotation { get; set; }
-    private int[][] _model { get; set; } = [];
+    private int[][] _vertices { get; set; } = [];
 
-    public Cube(float pX = 0f, float pY = 0f, float pZ = 0f, float rX = 0f, float rY = 0f, float rZ = 0f, float scale = 1f)
+    private static readonly int[][] _edges =
+    [
+        // back face edges
+        [0, 1], [1, 2],
+        [2, 3], [3, 0],
+        // front face edges
+        [4, 7], [7, 6],
+        [6, 5], [5, 4],
+        // back to front connecting edges
+        [0, 4], [1, 7],
+        [2, 6], [3, 5]
+    ];
+
+    public Cube(float posX = 0f, float posY = 0f, float posZ = 0f, float rotX = 0f, float rotY = 0f, float rotZ = 0f, float scale = 1f)
     {
-        Position = new Vector3f(pX, pY, pZ);
-        Rotation = new Vector3f(rX, rY, rZ);
+        Position = new Vector3f(posX, posY, posZ);
+        Rotation = new Vector3f(rotX, rotY, rotZ);
         Scale = scale;
 
-        _model = [
+        _vertices = [
             [ -1, -1, -1 ], // 0-left, top, back
             [ 1, -1, -1 ], // 1-right, top, back
             [ 1, 1, -1 ], // 2-right, bottom, back
@@ -30,50 +43,74 @@ public class Cube
         ];
     }
 
+    private const float NearPlane = -0.1f;
+
     public void Draw()
     {
-        foreach (int[]? model in _model)
+        Vector2f[] projectedVertices = new Vector2f[_vertices.Length];
+        Vector3f[] worldVertices = new Vector3f[_vertices.Length];
+
+        for (int vertexIndex = 0; vertexIndex < _vertices.Length; vertexIndex++)
         {
-            if (model is null) throw new NullReferenceException();
+            int[] vertexCoords = _vertices[vertexIndex];
+            Vector3f modelSpacePoint = new Vector3f(vertexCoords[0], vertexCoords[1], vertexCoords[2]);
+            Vector3f localSpacePoint = _toLocal(modelSpacePoint);
+            worldVertices[vertexIndex] = _toWorld(localSpacePoint);
+            projectedVertices[vertexIndex] = _toXY(worldVertices[vertexIndex]);
+        }
 
-            Vector3f point = new Vector3f(model[0], model[1], model[2]);
-            Vector3f localPoint = _toLocal(point);
-            Vector3f worldPoint = _toWorld(localPoint);
-            Vector2f xYPoint = _toXY(worldPoint);
+        foreach (int[] edgeIndices in _edges)
+        {
+            int startVertexIndex = edgeIndices[0];
+            int endVertexIndex = edgeIndices[1];
 
-            CircleShape dot = new CircleShape(2f)
-            {
-                Position = xYPoint,
-                FillColor = Color.Red
-            };
+            // skip this edge if either vertex is behind the 'near plane'
+            if (worldVertices[startVertexIndex].Z >= NearPlane || worldVertices[endVertexIndex].Z >= NearPlane)
+                continue;
 
-            Program.Window!.Draw(dot);
+            // draw edges
+            Vector2f edgeStart = projectedVertices[startVertexIndex];
+            Vector2f edgeEnd = projectedVertices[endVertexIndex];
+            VertexArray edgeLine = Util.GradientLineFactory(edgeStart, edgeEnd, 2f, Color.Blue, Color.Cyan);
+            Program.Window!.Draw(edgeLine);
+        }
+
+        for (int vertexIndex = 0; vertexIndex < projectedVertices.Length; vertexIndex++)
+        {
+            // skip this vertex if behind the 'near plane'
+            if (worldVertices[vertexIndex].Z >= NearPlane)
+                continue;
+
+            // draw vertices
+            Vector2f vertexScreenPos = projectedVertices[vertexIndex] - new Vector2f(3f, 3f);
+            CircleShape vertexDot = Util.CircleFactory(3f, Color.Red, vertexScreenPos);
+            Program.Window!.Draw(vertexDot);
         }
     }
 
-    private Vector3f _toLocal(Vector3f p)
+    private Vector3f _toLocal(Vector3f point)
     {
-        p *= Scale;
+        point *= Scale;
         // TODO: rotate around xyz axes
-        return p;
+        return point;
     }
 
-    private Vector3f _toWorld(Vector3f p) => p + Position;
+    private Vector3f _toWorld(Vector3f localPoint) => localPoint + Position;
 
-    private Vector2f _toXY(Vector3f p)
+    private Vector2f _toXY(Vector3f worldPoint)
     {
-        p.X /= p.Z; // x = x/z
-        p.Y /= p.Z; // y = y/z
+        worldPoint.X /= worldPoint.Z;
+        worldPoint.Y /= worldPoint.Z;
 
-        Vector2f vSize = new Vector2f(800, 600);
+        Vector2f screenSize = new Vector2f(800, 600);
 
-        p.X *= vSize.X; // * width
-        p.Y *= vSize.Y; // * height
+        worldPoint.X *= screenSize.X;
+        worldPoint.Y *= screenSize.Y;
 
-        p.X += vSize.X / 2; // center-ish
-        p.Y += vSize.Y / 2; // ^
+        worldPoint.X += screenSize.X / 2;
+        worldPoint.Y += screenSize.Y / 2;
 
-        return new Vector2f(p.X, p.Y);
+        return new Vector2f(worldPoint.X, worldPoint.Y);
     }
 
 }
