@@ -46,30 +46,4 @@ internal class Util
 
         return quad;
     }
-
-    public static ContextSettings ChooseBestSettings()
-    {
-        var levelsToTry = new uint[] { 16, 8, 4, 2, 0 };
-
-        foreach (var aa in levelsToTry)
-        {
-            var settings = new ContextSettings
-            {
-                AntialiasingLevel = aa,
-                DepthBits = 0,
-                StencilBits = 0,
-                MajorVersion = 2,
-                MinorVersion = 0
-            };
-
-            var mode = new VideoMode(1, 1);
-            using var win = new Window(mode, "", Styles.None, settings);
-
-            var got = win.Settings.AntialiasingLevel;
-            if (got == aa)
-                return settings;
-        }
-
-        return new ContextSettings();
-    }
 }

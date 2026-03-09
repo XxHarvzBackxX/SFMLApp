@@ -10,7 +10,7 @@ internal class Program
     public static readonly VideoMode VideoMode = new VideoMode(800, 600);
     static void Main(string[] args)
     {
-        Window = new RenderWindow(VideoMode, "SFML Window", Styles.Resize | Styles.Close, Util.ChooseBestSettings());
+        Window = new RenderWindow(VideoMode, "SFML Window", Styles.Resize | Styles.Close);
         Window.SetFramerateLimit(60);
         Window.SetKeyRepeatEnabled(false);
 
@@ -37,6 +37,10 @@ internal class Program
             //Window.Draw(line);
             //Window.Draw(gradientLine);
             //Window.Draw(shape);
+
+
+
+            cube.Position = new Vector3f(cube.Position.X - (deltaTime * 0.5f), cube.Position.Y - (deltaTime * 0.5f), cube.Position.Z - (deltaTime * 0.5f));
 
             cube.Draw();
             Window.Display();
