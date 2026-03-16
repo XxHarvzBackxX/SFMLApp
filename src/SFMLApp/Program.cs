@@ -38,9 +38,49 @@ internal class Program
             //Window.Draw(gradientLine);
             //Window.Draw(shape);
 
+            float speed = 2.5f * deltaTime;
+            Vector3f pos = cube.Position;
 
+            // wasd for X and Z translation
+            if (Keyboard.IsKeyPressed(Keyboard.Key.W))
+                pos.Z -= speed;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.S))
+                pos.Z += speed;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.A))
+                pos.X += speed;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.D))
+                pos.X -= speed;
 
-            cube.Position = new Vector3f(cube.Position.X - (deltaTime * 0.5f), cube.Position.Y - (deltaTime * 0.5f), cube.Position.Z - (deltaTime * 0.5f));
+            // Q and E for Y translation
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Q))
+                pos.Y -= speed;
+            if (Keyboard.IsKeyPressed(Keyboard.Key.E))
+                pos.Y += speed;
+
+            // R and F for roll
+            if (Keyboard.IsKeyPressed(Keyboard.Key.R))
+                cube.Rotation = Util.IncrementMutateZ(cube.Rotation, 0.01f);
+            if (Keyboard.IsKeyPressed(Keyboard.Key.F))
+                cube.Rotation = Util.IncrementMutateZ(cube.Rotation, -0.01f);
+
+            // T and G for pitch
+            if (Keyboard.IsKeyPressed(Keyboard.Key.T))
+                cube.Rotation = Util.IncrementMutateX(cube.Rotation, 0.01f);
+            if (Keyboard.IsKeyPressed(Keyboard.Key.G))
+                cube.Rotation = Util.IncrementMutateX(cube.Rotation, -0.01f);
+
+            // Y and H for yaw
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Y))
+                cube.Rotation = Util.IncrementMutateY(cube.Rotation, 0.01f);
+            if (Keyboard.IsKeyPressed(Keyboard.Key.H))
+                cube.Rotation = Util.IncrementMutateY(cube.Rotation, -0.01f);
+
+            //cube.Rotation = new Vector3f(cube.Rotation.X, cube.Rotation.Y + 0.01f, cube.Rotation.Z); // kebab
+            //cube.Rotation = new Vector3f(cube.Rotation.X + 0.01f, cube.Rotation.Y, cube.Rotation.Z); // adele
+            //cube.Rotation = new Vector3f(cube.Rotation.X, cube.Rotation.Y, cube.Rotation.Z + 0.01f); // tumble dryer
+            //cube.Rotation = new Vector3f(cube.Rotation.X + 0.01f, cube.Rotation.Y + 0.01f, cube.Rotation.Z + 0.01f); // kebab in adele's tumble dryer
+
+            cube.Position = pos;
 
             cube.Draw();
             Window.Display();
