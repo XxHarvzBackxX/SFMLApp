@@ -91,8 +91,12 @@ public class Cube
     private Vector3f _toLocal(Vector3f point)
     {
         point *= Scale;
-        // TODO: rotate around xyz axes
-        return point;
+
+        Vector3f rY = Util.RotateY(point, Rotation.Y);
+        Vector3f rX = Util.RotateX(rY, Rotation.X);
+        Vector3f rZ = Util.RotateZ(rX, Rotation.Z);
+
+        return rZ;
     }
 
     private Vector3f _toWorld(Vector3f localPoint) => localPoint + Position;
