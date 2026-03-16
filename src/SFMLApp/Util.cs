@@ -10,7 +10,7 @@ internal class Util
 
     public static RectangleShape SolidLineFactory(Vector2f p1, Vector2f p2, float width, Color color)
     {
-        var d = p1 - p2;
+        Vector2f d = p1 - p2;
         float len = (float)Math.Sqrt(d.X * d.X + d.Y * d.Y);
         float angle = (float)(Math.Atan2(d.Y, d.X) * 180.0 / Math.PI);
 
@@ -30,12 +30,12 @@ internal class Util
         Color colorStart,
         Color colorEnd)
     {
-        var direction = p2 - p1;
+        Vector2f direction = p2 - p1;
         float length = (float)Math.Sqrt(direction.X * direction.X + direction.Y * direction.Y);
 
-        var unit = direction / length;
+        Vector2f unit = direction / length;
 
-        var normal = new Vector2f(-unit.Y, unit.X) * (width / 2f);
+        Vector2f normal = new Vector2f(-unit.Y, unit.X) * (width / 2f);
 
         VertexArray quad = new(PrimitiveType.Quads, 4);
 
