@@ -31,12 +31,12 @@ public class Cube : Shape
         ];
 
         Faces = [
-            new Face([4, 5, 6, 7], this), // 0-front (near) face -- tlf, blf, brf, trf
-            new Face([1, 0, 3, 2], this), // 1-back (far) face -- trb, tlb, blb, brb
-            new Face([7, 1, 2, 6], this), // 2-right-hand face -- 
-            new Face([0, 4, 5, 3], this), // 3-left-hand face 
-            new Face([0, 1, 7, 4], this), // 4-top face
-            new Face([5, 6, 2, 3], this) // 5-bottom face
+            new([4, 5, 6, 7], this), // 0-front (near) face -- tlf, blf, brf, trf
+            new([1, 0, 3, 2], this), // 1-back (far) face -- trb, tlb, blb, brb
+            new([7, 1, 2, 6], this), // 2-right-hand face -- 
+            new([0, 4, 5, 3], this), // 3-left-hand face 
+            new([0, 1, 7, 4], this), // 4-top face
+            new([5, 6, 2, 3], this) // 5-bottom face
         ];
     }
 

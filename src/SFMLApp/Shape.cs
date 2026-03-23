@@ -8,12 +8,12 @@ public abstract class Shape
     public float Scale { get; set; }
     public Vector3f Rotation { get; set; }
 
-    public Face[] Faces { get; set; }
+    public Face[] Faces { get; set; } = null!;
 
     /// <summary>
     /// Represents vertices
     /// </summary>
-    protected int[][] _model { get; set; }
+    protected int[][] _model { get; set; } = null!;
 
     protected Vector3f _toLocal(Vector3f point)
     {
