@@ -1,9 +1,11 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFMLApp.Shapes.Base;
+using SFMLApp.Utility;
 
-namespace SFMLApp;
+namespace SFMLApp.Shapes.Primitives;
 
-public class Cube : Shape
+public class Cube : SimpleShape
 {
     public const float NearPlane = -0.1f;
     public Cube(float posX = 0f, float posY = 0f, float posZ = 0f, float rotX = 0f, float rotY = 0f, float rotZ = 0f, float scale = 1f)
@@ -31,7 +33,7 @@ public class Cube : Shape
         ];
 
         Faces = [
-            new([4, 5, 6, 7], this), // 0-front (near) face -- tlf, blf, brf, trf
+            new([7, 6, 5, 4], this), // 0-front (near) face -- tlf, blf, brf, trf
             new([1, 0, 3, 2], this), // 1-back (far) face -- trb, tlb, blb, brb
             new([7, 1, 2, 6], this), // 2-right-hand face -- 
             new([0, 4, 5, 3], this), // 3-left-hand face 
@@ -49,9 +51,9 @@ public class Cube : Shape
         {
             int[] vertexCoords = _model[vertexIndex];
             Vector3f modelSpacePoint = new Vector3f(vertexCoords[0], vertexCoords[1], vertexCoords[2]);
-            Vector3f localSpacePoint = _toLocal(modelSpacePoint);
-            worldVertices[vertexIndex] = _toWorld(localSpacePoint);
-            projectedVertices[vertexIndex] = _toXY(worldVertices[vertexIndex]);
+            Vector3f localSpacePoint = Util.ToLocal(modelSpacePoint, Scale, Rotation);
+            worldVertices[vertexIndex] = Util.ToWorld(localSpacePoint, Position);
+            projectedVertices[vertexIndex] = Util.ToXY(worldVertices[vertexIndex]);
         }
 
 
@@ -63,14 +65,10 @@ public class Cube : Shape
 
             // draw vertices
             Vector2f vertexScreenPos = projectedVertices[vertexIndex] - new Vector2f(3f, 3f);
-            CircleShape vertexDot = Util.CircleFactory(3f, Color.Red, vertexScreenPos);
-            Program.Window!.Draw(vertexDot);
+
+            //Util.Circle(vertexScreenPos, Color.Red);
         }
 
-        List<Color> colors = new List<Color>
-        {
-            Color.Red, Color.Blue, Color.Cyan, Color.White
-        };
 
 
         foreach (Face face in Faces)
@@ -78,5 +76,4 @@ public class Cube : Shape
             face.Draw(worldVertices, projectedVertices);
         }
     }
-
 }
