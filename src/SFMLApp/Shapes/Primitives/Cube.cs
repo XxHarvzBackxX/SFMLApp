@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFMLApp.Infrastructure;
 using SFMLApp.Shapes.Base;
 using SFMLApp.Utility;
 
@@ -7,7 +8,6 @@ namespace SFMLApp.Shapes.Primitives;
 
 public class Cube : SimpleShape
 {
-    public const float NearPlane = -0.1f;
     public Cube(float posX = 0f, float posY = 0f, float posZ = 0f, float rotX = 0f, float rotY = 0f, float rotZ = 0f, float scale = 1f)
     {
         Position = new Vector3f(posX, posY, posZ);
@@ -42,7 +42,7 @@ public class Cube : SimpleShape
         ];
     }
 
-    public void Draw()
+    public void Draw(Camera camera)
     {
         Vector2f[] projectedVertices = new Vector2f[_model.Length];
         Vector3f[] worldVertices = new Vector3f[_model.Length];
@@ -56,24 +56,9 @@ public class Cube : SimpleShape
             projectedVertices[vertexIndex] = Util.ToXY(worldVertices[vertexIndex]);
         }
 
-
-        for (int vertexIndex = 0; vertexIndex < projectedVertices.Length; vertexIndex++)
-        {
-            // skip this vertex if behind the 'near plane'
-            if (worldVertices[vertexIndex].Z >= NearPlane)
-                continue;
-
-            // draw vertices
-            Vector2f vertexScreenPos = projectedVertices[vertexIndex] - new Vector2f(3f, 3f);
-
-            //Util.Circle(vertexScreenPos, Color.Red);
-        }
-
-
-
         foreach (Face face in Faces)
         {
-            face.Draw(worldVertices, projectedVertices);
+            face.Draw(worldVertices, projectedVertices, camera);
         }
     }
 }

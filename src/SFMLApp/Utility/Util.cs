@@ -144,4 +144,9 @@ internal class Util
             v1.X * v2.Y - v1.Y * v2.X
         ));
     }
+
+    public static float Dot(Vector3f p1, Vector3f p2)
+    {
+        return p1.X * p2.X + p1.Y * p2.Y + p1.Z * p2.Z;
+    }
 }

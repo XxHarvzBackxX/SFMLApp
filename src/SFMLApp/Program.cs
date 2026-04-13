@@ -2,6 +2,7 @@
 using SFML.Graphics;
 using SFML.System;
 using SFMLApp.Shapes.Primitives;
+using SFMLApp.Infrastructure;
 
 namespace SFMLApp;
 
@@ -9,17 +10,19 @@ internal class Program
 {
     public static RenderWindow? Window { get; private set; }
     public static readonly VideoMode VideoMode = new VideoMode(800, 600);
+    public static Camera Camera = null!;
     static void Main(string[] args)
     {
         Window = new RenderWindow(VideoMode, "SFML Window", Styles.Resize | Styles.Close);
         Window.SetFramerateLimit(60);
         Window.SetKeyRepeatEnabled(false);
 
-        //CircleShape shape = Util.CircleFactory(20f, Color.Red, new Vector2f(0f, 0f));
-        //Vector2f vel = new Vector2f(150f, 150f);
+        Camera = new Camera()
+        {
+            Position = new Vector3f(0, 0, 0),
+        };
+        
 
-        //RectangleShape line = Util.SolidLineFactory(new Vector2f(200f, 200f), new Vector2f(400f, 400f), 5f, Color.Blue);
-        //VertexArray gradientLine = Util.GradientLineFactory(new Vector2f(200f, 200f), new Vector2f(400f, 400f), 5f, Color.Blue, Color.Red);
         Cube cube = new Cube(-2f, -2f, -10f, 0f, 0f, 0f, 1f);
 
         Clock clock = new Clock();
@@ -32,13 +35,6 @@ internal class Program
             float deltaTime = clock.Restart().AsSeconds();
             Window.DispatchEvents();
             Window.Clear();
-
-            //shape.Position += vel * deltaTime;
-            //if (shape.Position.Y + (shape.Radius * 2) > Window.Size.Y)
-            //    vel.Y *= -1;
-            //Window.Draw(line);
-            //Window.Draw(gradientLine);
-            //Window.Draw(shape);
 
             float speed = 2.5f * deltaTime;
 
@@ -81,7 +77,7 @@ internal class Program
             //cube.Rotation = new Vector3f(cube.Rotation.X, cube.Rotation.Y, cube.Rotation.Z + 0.01f); // tumble dryer
             //cube.Rotation = new Vector3f(cube.Rotation.X + 0.01f, cube.Rotation.Y + 0.01f, cube.Rotation.Z + 0.01f); // kebab in adele's tumble dryer
 
-            cube.Draw();
+            cube.Draw(Camera);
             Window.Display();
         }
     }
