@@ -1,5 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
+using SFMLApp.Infrastructure;
 using SFMLApp.Shapes.Base;
 
 namespace SFMLApp.Utility;
@@ -48,6 +49,19 @@ internal class Util
     }
 
     public static void Line(Vector2f p1, Vector2f p2, Color color, float width = 3f) => Program.Window!.Draw(SolidLineFactory(p1, p2, width, color));
+
+    public static void Quad(Vector2f[] points, Color color)
+    {
+        VertexArray quad = new VertexArray(PrimitiveType.Quads);
+
+        foreach (Vector2f p in points)
+        {
+            quad.Append(new Vertex(p, color));
+        }
+
+        Program.Window!.Draw(quad);
+    }
+
     public static void GradientLine(Vector2f p1, Vector2f p2, Color color1, Color color2, float width = 3f) => Program.Window!.Draw(GradientLineFactory(p1, p2, width, color1, color2));
 
     public static void Circle(Vector2f position, Color fillColor, float radius = 3f) => Program.Window!.Draw(CircleFactory(radius, fillColor, position));
@@ -98,12 +112,25 @@ internal class Util
 
     public static Vector3f ToWorld(Vector3f localPoint, Vector3f position) => localPoint + position;
 
+    public static Vector3f ToView(Vector3f worldPoint, Camera camera)
+    {
+        Vector3f translated = worldPoint - camera.Position;
+
+        return ToLocal(
+            translated,
+            1f,
+            new Vector3f(
+                -camera.Rotation.X,
+                -camera.Rotation.Y,
+                0f));
+    }
+
     public static Vector2f ToXY(Vector3f worldPoint)
     {
         worldPoint.X /= -worldPoint.Z;
         worldPoint.Y /= -worldPoint.Z;
 
-        Vector2f screenSize = Program.Window?.GetView().Size ?? new Vector2f(800, 600); // TODO: make const not hardcoded
+        Vector2u screenSize = Program.Window!.Size;
 
         worldPoint.X *= screenSize.X;
         worldPoint.Y *= screenSize.Y;
@@ -149,4 +176,35 @@ internal class Util
     {
         return p1.X * p2.X + p1.Y * p2.Y + p1.Z * p2.Z;
     }
+
+    public static Color Attenuate(Color color, float strength)
+    {
+        strength = Math.Clamp(strength, 0.0f, 1.0f);
+        byte R = (byte)(color.R * strength);
+        byte G = (byte)(color.G * strength);
+        byte B = (byte)(color.B * strength);
+
+        return new Color(R, G, B);
+    }
+
+    public static Color Mix(Color c1, Color c2, float bias)
+    {
+        bias = Math.Clamp(bias, 0.0f, 1.0f);
+        byte R = (byte)(c1.R + (c2.R - c1.R) * bias);
+        byte G = (byte)(c1.G + (c2.G - c1.G) * bias);
+        byte B = (byte)(c1.B + (c2.B - c1.B) * bias);
+
+        return new Color(R, G, B);
+    }
+
+    public static Color Mix(Color c1, Color c2)
+    {
+        byte R = (byte)((c1.R + c2.R) / 2.0f);
+        byte G = (byte)((c1.G + c2.G) / 2.0f);
+        byte B = (byte)((c1.B + c2.B) / 2.0f);
+
+        return new Color(R, G, B);
+    }
+
+    public static float Magnitude(Vector3f vector) => MathF.Sqrt((vector.X * vector.X) + (vector.Y * vector.Y) + (vector.Z * vector.Z));
 }

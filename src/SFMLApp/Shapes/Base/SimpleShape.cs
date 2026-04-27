@@ -1,5 +1,5 @@
 ﻿using SFML.System;
-using SFMLApp.Utility;
+using SFML.Graphics;
 
 namespace SFMLApp.Shapes.Base;
 
@@ -10,6 +10,8 @@ public abstract class SimpleShape
     public float Scale { get; set; }
     private Vector3f _rotation;
     public ref Vector3f Rotation => ref _rotation;
+
+    public Color BaseShapeColor { get; set; }
 
     public Face[] Faces { get; set; } = null!;
 

@@ -8,11 +8,12 @@ namespace SFMLApp.Shapes.Primitives;
 
 public class Cube : SimpleShape
 {
-    public Cube(float posX = 0f, float posY = 0f, float posZ = 0f, float rotX = 0f, float rotY = 0f, float rotZ = 0f, float scale = 1f)
+    public Cube(float posX = 0f, float posY = 0f, float posZ = 0f, float rotX = 0f, float rotY = 0f, float rotZ = 0f, float scale = 1f, Color? baseShapeColor = null)
     {
         Position = new Vector3f(posX, posY, posZ);
         Rotation = new Vector3f(rotX, rotY, rotZ);
         Scale = scale;
+        BaseShapeColor = baseShapeColor ?? new Color(255, 255, 255);
 
         _initModels();
     }
@@ -42,23 +43,33 @@ public class Cube : SimpleShape
         ];
     }
 
-    public void Draw(Camera camera)
+    public void Draw(Camera camera, LightSource lightSource)
     {
         Vector2f[] projectedVertices = new Vector2f[_model.Length];
         Vector3f[] worldVertices = new Vector3f[_model.Length];
+        Vector3f[] viewVertices = new Vector3f[_model.Length];
 
         for (int vertexIndex = 0; vertexIndex < _model.Length; vertexIndex++)
         {
             int[] vertexCoords = _model[vertexIndex];
-            Vector3f modelSpacePoint = new Vector3f(vertexCoords[0], vertexCoords[1], vertexCoords[2]);
+
+            Vector3f modelSpacePoint = new(vertexCoords[0], vertexCoords[1], vertexCoords[2]);
             Vector3f localSpacePoint = Util.ToLocal(modelSpacePoint, Scale, Rotation);
+
             worldVertices[vertexIndex] = Util.ToWorld(localSpacePoint, Position);
-            projectedVertices[vertexIndex] = Util.ToXY(worldVertices[vertexIndex]);
+            viewVertices[vertexIndex] = Util.ToView(worldVertices[vertexIndex], camera);
+            projectedVertices[vertexIndex] = Util.ToXY(viewVertices[vertexIndex]);
         }
 
         foreach (Face face in Faces)
         {
-            face.Draw(worldVertices, projectedVertices, camera);
+            face.Draw(
+                viewVertices,
+                worldVertices,
+                projectedVertices,
+                BaseShapeColor,
+                camera,
+                lightSource);
         }
     }
 }
