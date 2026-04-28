@@ -112,23 +112,25 @@ internal class Program
                 _isRightMouseDragging = false;
         };
 
-        window.MouseMoved += (_, e) =>
-        {
-            if (!_isRightMouseDragging)
-                return;
-
-            Vector2i currentMousePosition = new(e.X, e.Y);
-
-            Vector2i delta = currentMousePosition - _lastMousePosition;
-
-            Camera.Rotation.Y += delta.X * _mouseSensitivity;
-            Camera.Rotation.X += delta.Y * _mouseSensitivity;
-            Camera.Rotation.X = Math.Clamp(Camera.Rotation.X, -1.5f, 1.5f);
-
-            _lastMousePosition = currentMousePosition;
-        };
+        window.MouseMoved += HandleMouseCameraRotation;
 
         return window;
+    }
+
+    private static void HandleMouseCameraRotation(object? sender, MouseMoveEventArgs e)
+    {
+        if (!_isRightMouseDragging)
+            return;
+
+        Vector2i currentMousePosition = new(e.X, e.Y);
+
+        Vector2i delta = currentMousePosition - _lastMousePosition;
+
+        Camera.Rotation.Y += delta.X * _mouseSensitivity;
+        Camera.Rotation.X += delta.Y * _mouseSensitivity;
+        Camera.Rotation.X = Math.Clamp(Camera.Rotation.X, -1.5f, 1.5f);
+
+        _lastMousePosition = currentMousePosition;
     }
 
     private static void HandleInput(Cube cube, float deltaTime)
