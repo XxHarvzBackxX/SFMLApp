@@ -11,7 +11,7 @@ namespace SFMLApp;
 internal class Program
 {
     public static RenderWindow? Window { get; private set; }
-    public static readonly VideoMode VideoMode = new(800, 600);
+    public static readonly VideoMode VideoMode = new(1024, 768);
 
     public static Camera Camera = null!;
     public static LightSource LightSource = null!;
@@ -36,7 +36,7 @@ internal class Program
         };
 
         Cube cube = new(-2f, 2f, -10f, 0f, 0f, 0f, 1f);
-        LightSource = new LightSource(2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Blue);
+        LightSource = new LightSource(2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);
 
         Clock clock = new();
 

@@ -91,7 +91,7 @@ public class Face
         Util.Circle(projectedCentroid, Color.Green, 5f);
 
 
-        Vector3f normalEnd = centroidView - normal / 2;
+        Vector3f normalEnd = centroidView + normal / 2;
         Vector2f projectedNormalEnd = Util.ToXY(normalEnd);
 
         Util.GradientLine(projectedCentroid, projectedNormalEnd, Color.Green, Color.Red);
