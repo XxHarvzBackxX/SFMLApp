@@ -43,7 +43,7 @@ public class Cube : SimpleShape
         ];
     }
 
-    public void Draw(Camera camera, LightSource lightSource)
+    public override void Draw(Camera camera, IReadOnlyList<LightSource> lightSources)
     {
         Vector2f[] projectedVertices = new Vector2f[_model.Length];
         Vector3f[] worldVertices = new Vector3f[_model.Length];
@@ -69,7 +69,7 @@ public class Cube : SimpleShape
                 projectedVertices,
                 BaseShapeColor,
                 camera,
-                lightSource);
+                lightSources);
         }
     }
 }

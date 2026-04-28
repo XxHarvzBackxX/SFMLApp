@@ -22,7 +22,7 @@ public class Face
         Vector2f[] projectedVertices,
         Color faceColor,
         Camera camera,
-        LightSource lightSource)
+        IReadOnlyList<LightSource> lightSources)
     {
         Vector3f[] faceWorldVertices = new Vector3f[_vertices.Length];
         Vector3f[] faceViewVertices = new Vector3f[_vertices.Length];
@@ -50,21 +50,39 @@ public class Face
 
         Vector3f centroidWorld = Util.Centroid(faceWorldVertices);
 
-        float lightStrength = 1f;
+        // is this face part of a light source object?
+        bool isEmissive = Parent is LightSource;
 
-        if (Parent != lightSource)
+        if (!isEmissive)
         {
-            Vector3f toLightSource = lightSource.Position - faceWorldVertices[0];
+            // accumulate RGB light contributions additively from every light source
+            float r = 0f, g = 0f, b = 0f;
+            float ambient = 0f;
 
-            float lightDotProduct = Util.Dot(Util.Normalize(toLightSource), normal);
-            float distanceToLightSource = Util.Magnitude(toLightSource);
+            foreach (LightSource light in lightSources)
+            {
+                ambient = Math.Max(ambient, light.MinimumBrightness);
 
-            lightStrength = lightDotProduct * lightSource.Intensity / distanceToLightSource;
-            lightStrength = Math.Max(lightSource.MinimumBrightness, lightStrength);
-            lightStrength = Math.Min(lightStrength, 1.0f);
+                Vector3f toLightSource = light.Position - centroidWorld;
+                Vector3f toLightDir = Util.Normalize(toLightSource);
+                float distance = Util.Magnitude(toLightSource);
 
-            Color lightColor = lightSource.BaseShapeColor;
-            Color litFaceColor = Util.Attenuate(Util.Mix(faceColor, lightColor), lightStrength);
+                // clamped so back-facing normals contribute nothing
+                float diffuse = Math.Max(0f, Util.Dot(toLightDir, normal));
+
+                // inverse square attenuation
+                float contribution = diffuse * light.Intensity / (distance * distance);
+
+                r += (light.BaseShapeColor.R / 255f) * contribution;
+                g += (light.BaseShapeColor.G / 255f) * contribution;
+                b += (light.BaseShapeColor.B / 255f) * contribution;
+            }
+
+            // add ambient floor then modulate face colour channel by channel
+            Color litFaceColor = new(
+                (byte)(faceColor.R * Math.Clamp(ambient + r, 0f, 1f)),
+                (byte)(faceColor.G * Math.Clamp(ambient + g, 0f, 1f)),
+                (byte)(faceColor.B * Math.Clamp(ambient + b, 0f, 1f)));
 
             Util.Quad(faceProjectedVertices, litFaceColor);
         }

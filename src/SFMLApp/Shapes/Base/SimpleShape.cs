@@ -1,5 +1,7 @@
 ﻿using SFML.System;
 using SFML.Graphics;
+using SFMLApp.Infrastructure;
+using SFMLApp.Shapes.Primitives;
 
 namespace SFMLApp.Shapes.Base;
 
@@ -19,4 +21,6 @@ public abstract class SimpleShape
     /// Represents vertices
     /// </summary>
     protected int[][] _model { get; set; } = null!;
+
+    public abstract void Draw(Camera camera, IReadOnlyList<LightSource> lightSources);
 }
