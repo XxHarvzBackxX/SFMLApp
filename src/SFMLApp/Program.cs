@@ -36,11 +36,12 @@ internal class Program
 
         LightSource redLight  = new( 2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);
         LightSource blueLight = new(-2f,  2f,  -8f, 0f, 0f, 0f, 1f, Color.Blue);
+        LightSource whiteLight = new(0f, -8f, 6f, 4f, 0f, 0f, 1f, Color.White) { Intensity = 40.0f };
 
         Cube cube = new(-2f, 2f, -10f, 0f, 0f, 0f, 1f);
 
         Scene = new Scene(
-            lightSources: [redLight, blueLight],
+            lightSources: [redLight, blueLight, whiteLight],
             objects:      [cube]);
 
         Clock clock = new();

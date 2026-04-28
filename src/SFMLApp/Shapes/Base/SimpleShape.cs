@@ -22,5 +22,5 @@ public abstract class SimpleShape
     /// </summary>
     protected int[][] _model { get; set; } = null!;
 
-    public abstract void Draw(Camera camera, IReadOnlyList<LightSource> lightSources);
+    public abstract IEnumerable<DrawCall> CollectFaces(Camera camera, IReadOnlyList<LightSource> lightSources);
 }

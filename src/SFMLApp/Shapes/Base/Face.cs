@@ -16,7 +16,14 @@ public class Face
         Parent = parent;
     }
 
-    public void Draw(
+    // Faces with a view-space centroid Z closer to the camera than this are clipped.
+    private const float NearPlane = -0.1f;
+
+    /// <summary>
+    /// Attempts to produce a depth-keyed draw call for this face.
+    /// Returns <see langword="null"/> when the face is culled (backface, behind camera, or on the near plane).
+    /// </summary>
+    public DrawCall? TryGetDrawCall(
         Vector3f[] viewVertices,
         Vector3f[] worldVertices,
         Vector2f[] projectedVertices,
@@ -37,82 +44,52 @@ public class Face
             i++;
         }
 
-        // calculate vector to camera
+        // cull faces behind the camera or intersecting the near plane
+        float centroidViewZ = 0f;
+        foreach (Vector3f v in faceViewVertices) centroidViewZ += v.Z;
+        centroidViewZ /= faceViewVertices.Length;
+        if (centroidViewZ >= NearPlane) return null;
+
+        // backface culling
         Vector3f toCamera = camera.Position - faceWorldVertices[0];
-
-        // calculate normal
         Vector3f normal = Util.Cross(faceWorldVertices[0], faceWorldVertices[1], faceWorldVertices[2]);
+        if (Util.Dot(toCamera, normal) <= 0f) return null;
 
-        // dot product of normal & toCamera
-        float dp = Util.Dot(toCamera, normal);
-
-        if (dp <= 0f) return; // cull backfaces
-
-        Vector3f centroidWorld = Util.Centroid(faceWorldVertices);
-
-        // is this face part of a light source object?
         bool isEmissive = Parent is LightSource;
+        Color[] vertexColors = new Color[_vertices.Length];
 
         if (!isEmissive)
         {
-            // accumulate RGB light contributions additively from every light source
-            float r = 0f, g = 0f, b = 0f;
-            float ambient = 0f;
-
-            foreach (LightSource light in lightSources)
-            {
-                ambient = Math.Max(ambient, light.MinimumBrightness);
-
-                Vector3f toLightSource = light.Position - centroidWorld;
-                Vector3f toLightDir = Util.Normalize(toLightSource);
-                float distance = Util.Magnitude(toLightSource);
-
-                // clamped so back-facing normals contribute nothing
-                float diffuse = Math.Max(0f, Util.Dot(toLightDir, normal));
-
-                // inverse square attenuation
-                float contribution = diffuse * light.Intensity / (distance * distance);
-
-                r += (light.BaseShapeColor.R / 255f) * contribution;
-                g += (light.BaseShapeColor.G / 255f) * contribution;
-                b += (light.BaseShapeColor.B / 255f) * contribution;
-            }
-
-            // add ambient floor then modulate face colour channel by channel
-            Color litFaceColor = new(
-                (byte)(faceColor.R * Math.Clamp(ambient + r, 0f, 1f)),
-                (byte)(faceColor.G * Math.Clamp(ambient + g, 0f, 1f)),
-                (byte)(faceColor.B * Math.Clamp(ambient + b, 0f, 1f)));
-
-            Util.Quad(faceProjectedVertices, litFaceColor);
+            for (int v = 0; v < _vertices.Length; v++)
+                vertexColors[v] = LightingEngine.ComputeLitColor(faceWorldVertices[v], normal, faceColor, lightSources);
         }
         else
         {
-            Util.Quad(faceProjectedVertices, faceColor);
+            for (int v = 0; v < _vertices.Length; v++)
+                vertexColors[v] = faceColor;
         }
 
-        if (!Program.DebugView) return;
-
-
-        for (int j = 0; j < _vertices.Length; j++)
+        return new DrawCall(centroidViewZ, () =>
         {
-            Vector2f point1 = faceProjectedVertices[j];
-            Vector2f point2 = faceProjectedVertices[(j + 1) % _vertices.Length]; // wrap around to 0 for i == length
+            Util.Quad(faceProjectedVertices, vertexColors);
 
-            Util.GradientLine(point1, point2, Color.Blue, Color.Cyan);
-        }
+            if (!Program.DebugView) return;
 
-        Vector3f centroidView = Util.Centroid(faceViewVertices);
+            for (int j = 0; j < faceProjectedVertices.Length; j++)
+            {
+                Vector2f point1 = faceProjectedVertices[j];
+                Vector2f point2 = faceProjectedVertices[(j + 1) % faceProjectedVertices.Length]; // wrap around to 0 for i == length
+                Util.GradientLine(point1, point2, Color.Blue, Color.Cyan);
+            }
 
-        Vector2f projectedCentroid = Util.ToXY(centroidView);
+            Vector3f centroidView = Util.Centroid(faceViewVertices);
+            Vector2f projectedCentroid = Util.ToXY(centroidView);
+            Util.Circle(projectedCentroid, Color.Green, 5f);
 
-        Util.Circle(projectedCentroid, Color.Green, 5f);
-
-
-        Vector3f normalEnd = centroidView + normal / 2;
-        Vector2f projectedNormalEnd = Util.ToXY(normalEnd);
-
-        Util.GradientLine(projectedCentroid, projectedNormalEnd, Color.Green, Color.Red);
-        Util.Circle(projectedNormalEnd, Color.Red, 5f);
+            Vector3f normalEnd = centroidView + normal / 2;
+            Vector2f projectedNormalEnd = Util.ToXY(normalEnd);
+            Util.GradientLine(projectedCentroid, projectedNormalEnd, Color.Green, Color.Red);
+            Util.Circle(projectedNormalEnd, Color.Red, 5f);
+        });
     }
 }

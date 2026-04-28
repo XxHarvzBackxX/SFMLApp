@@ -37,7 +37,15 @@ public class Scene
 
     public void Render(Camera camera)
     {
+        List<DrawCall> drawCalls = [];
+
         foreach (SimpleShape obj in _objects)
-            obj.Draw(camera, _lightSources);
+            drawCalls.AddRange(obj.CollectFaces(camera, _lightSources));
+
+        // sort back-to-front (most negative Z is furthest away)
+        drawCalls.Sort(static (a, b) => a.Depth.CompareTo(b.Depth));
+
+        foreach (DrawCall drawCall in drawCalls)
+            drawCall.Draw();
     }
 }

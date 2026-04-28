@@ -62,6 +62,18 @@ internal class Util
         Program.Window!.Draw(quad);
     }
 
+    public static void Quad(Vector2f[] points, Color[] colors)
+    {
+        VertexArray quad = new VertexArray(PrimitiveType.Quads);
+
+        for (int i = 0; i < points.Length; i++)
+        {
+            quad.Append(new Vertex(points[i], colors[i]));
+        }
+
+        Program.Window!.Draw(quad);
+    }
+
     public static void GradientLine(Vector2f p1, Vector2f p2, Color color1, Color color2, float width = 3f) => Program.Window!.Draw(GradientLineFactory(p1, p2, width, color1, color2));
 
     public static void Circle(Vector2f position, Color fillColor, float radius = 3f) => Program.Window!.Draw(CircleFactory(radius, fillColor, position));
