@@ -8,9 +8,9 @@ namespace SFMLApp.Shapes.Base;
 
 public class Face
 {
-    public SimpleShape Parent { get; private set; }
+    public Shape3D Parent { get; private set; }
     private int[] _vertices;
-    public Face(int[] vertices, SimpleShape parent)
+    public Face(int[] vertices, Shape3D parent)
     {
         _vertices = vertices;
         Parent = parent;

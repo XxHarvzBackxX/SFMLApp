@@ -5,23 +5,23 @@ namespace SFMLApp.Infrastructure;
 
 public class Scene
 {
-    private readonly List<SimpleShape> _objects = [];
+    private readonly List<Shape3D> _objects = [];
     private readonly List<LightSource> _lightSources = [];
 
     public IReadOnlyList<LightSource> LightSources => _lightSources;
-    public IReadOnlyList<SimpleShape> Objects => _objects;
+    public IReadOnlyList<Shape3D> Objects => _objects;
 
-    public Scene(IEnumerable<LightSource>? lightSources = null, IEnumerable<SimpleShape>? objects = null)
+    public Scene(IEnumerable<LightSource>? lightSources = null, IEnumerable<Shape3D>? objects = null)
     {
         foreach (LightSource light in lightSources ?? [])
             AddLight(light);
 
-        foreach (SimpleShape obj in objects ?? [])
+        foreach (Shape3D obj in objects ?? [])
             Add(obj);
     }
 
-    public void Add(SimpleShape shape) => _objects.Add(shape);
-    public void Remove(SimpleShape shape) => _objects.Remove(shape);
+    public void Add(Shape3D shape) => _objects.Add(shape);
+    public void Remove(Shape3D shape) => _objects.Remove(shape);
 
     public void AddLight(LightSource lightSource)
     {
@@ -39,7 +39,7 @@ public class Scene
     {
         List<DrawCall> drawCalls = [];
 
-        foreach (SimpleShape obj in _objects)
+        foreach (Shape3D obj in _objects)
             drawCalls.AddRange(obj.CollectFaces(camera, _lightSources));
 
         // sort back-to-front (most negative Z is furthest away)

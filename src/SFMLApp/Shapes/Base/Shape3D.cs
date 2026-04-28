@@ -5,7 +5,7 @@ using SFMLApp.Shapes.Primitives;
 
 namespace SFMLApp.Shapes.Base;
 
-public abstract class SimpleShape
+public abstract class Shape3D
 {
     private Vector3f _position;
     public ref Vector3f Position => ref _position;
