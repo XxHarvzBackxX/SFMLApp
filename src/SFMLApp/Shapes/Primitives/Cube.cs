@@ -6,7 +6,7 @@ using SFMLApp.Utility;
 
 namespace SFMLApp.Shapes.Primitives;
 
-public class Cube : SimpleShape
+public class Cube : Shape3D
 {
     public Cube(float posX = 0f, float posY = 0f, float posZ = 0f, float rotX = 0f, float rotY = 0f, float rotZ = 0f, float scale = 1f, Color? baseShapeColor = null)
     {

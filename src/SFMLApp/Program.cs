@@ -64,7 +64,7 @@ internal class Program
         // animations?
     }
 
-    private static void Render(SimpleShape shape)
+    private static void Render(Shape3D shape)
     {
         Window!.Clear();
 
