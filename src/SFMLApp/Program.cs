@@ -2,7 +2,6 @@
 using SFML.System;
 using SFML.Window;
 using SFMLApp.Infrastructure;
-using SFMLApp.Shapes.Base;
 using SFMLApp.Shapes.Primitives;
 using SFMLApp.Utility;
 
@@ -14,7 +13,7 @@ internal class Program
     public static readonly VideoMode VideoMode = new(1024, 768);
 
     public static Camera Camera = null!;
-    public static LightSource LightSource = null!;
+    public static Scene Scene = null!;
 
     public static bool DebugView { get; private set; }
 
@@ -35,8 +34,15 @@ internal class Program
             Rotation = new Vector2f(0f, 0f)
         };
 
+        LightSource redLight  = new( 2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);
+        LightSource blueLight = new(-2f,  2f,  -8f, 0f, 0f, 0f, 1f, Color.Blue);
+        LightSource whiteLight = new(0f, -8f, 6f, 4f, 0f, 0f, 1f, Color.White) { Intensity = 40.0f };
+
         Cube cube = new(-2f, 2f, -10f, 0f, 0f, 0f, 1f);
-        LightSource = new LightSource(2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);
+
+        Scene = new Scene(
+            lightSources: [redLight, blueLight, whiteLight],
+            objects:      [cube]);
 
         Clock clock = new();
 
@@ -46,7 +52,7 @@ internal class Program
 
             ProcessEvents();
             Update(cube, deltaTime);
-            Render(cube);
+            Render();
         }
     }
 
@@ -64,15 +70,10 @@ internal class Program
         // animations?
     }
 
-    private static void Render(Shape3D shape)
+    private static void Render()
     {
         Window!.Clear();
-
-        if (shape is Cube cube)
-            cube.Draw(Camera, LightSource);
-
-        LightSource.Draw(Camera, LightSource);
-
+        Scene.Render(Camera);
         Window.Display();
     }
 

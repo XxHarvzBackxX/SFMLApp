@@ -43,9 +43,8 @@ public class Cube : Shape3D
         ];
     }
 
-    public void Draw(Camera camera, LightSource lightSource)
+    public override IEnumerable<DrawCall> CollectFaces(Camera camera, IReadOnlyList<LightSource> lightSources)
     {
-        Vector2f[] projectedVertices = new Vector2f[_model.Length];
         Vector3f[] worldVertices = new Vector3f[_model.Length];
         Vector3f[] viewVertices = new Vector3f[_model.Length];
 
@@ -58,18 +57,28 @@ public class Cube : Shape3D
 
             worldVertices[vertexIndex] = Util.ToWorld(localSpacePoint, Position);
             viewVertices[vertexIndex] = Util.ToView(worldVertices[vertexIndex], camera);
-            projectedVertices[vertexIndex] = Util.ToXY(viewVertices[vertexIndex]);
+        }
+
+        // only project vertices that are in front of the camera to avoid garbage projected coordinates
+        Vector2f[] projectedVertices = new Vector2f[_model.Length];
+        for (int vertexIndex = 0; vertexIndex < _model.Length; vertexIndex++)
+        {
+            if (viewVertices[vertexIndex].Z < 0f)
+                projectedVertices[vertexIndex] = Util.ToXY(viewVertices[vertexIndex]);
         }
 
         foreach (Face face in Faces)
         {
-            face.Draw(
+            DrawCall? drawCall = face.TryGetDrawCall(
                 viewVertices,
                 worldVertices,
                 projectedVertices,
                 BaseShapeColor,
                 camera,
-                lightSource);
+                lightSources);
+
+            if (drawCall is not null)
+                yield return drawCall;
         }
     }
 }

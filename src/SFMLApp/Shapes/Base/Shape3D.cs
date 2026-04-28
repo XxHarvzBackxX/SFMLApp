@@ -1,5 +1,7 @@
 ﻿using SFML.System;
 using SFML.Graphics;
+using SFMLApp.Infrastructure;
+using SFMLApp.Shapes.Primitives;
 
 namespace SFMLApp.Shapes.Base;
 
@@ -19,4 +21,6 @@ public abstract class Shape3D
     /// Represents vertices
     /// </summary>
     protected int[][] _model { get; set; } = null!;
+
+    public abstract IEnumerable<DrawCall> CollectFaces(Camera camera, IReadOnlyList<LightSource> lightSources);
 }

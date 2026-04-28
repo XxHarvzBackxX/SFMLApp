@@ -4,7 +4,7 @@ namespace SFMLApp.Shapes.Primitives;
 
 public class LightSource : Cube
 {
-    public float Intensity { get; set; } = 4.0f;
+    public float Intensity { get; set; } = 6.0f;
     public float MinimumBrightness { get; set; } = 0.1f;
 
     public LightSource(
