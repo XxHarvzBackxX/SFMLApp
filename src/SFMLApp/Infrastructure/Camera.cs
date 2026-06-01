@@ -41,13 +41,8 @@ public class Camera
     {
         get
         {
-            float yaw = Rotation.Y;
-
-            return Util.Normalize(new Vector3f(
-                MathF.Cos(yaw),
-                0f,
-                MathF.Sin(yaw)
-            ));
+            Vector3f forwardFlat = ForwardFlat;
+            return new Vector3f(-forwardFlat.Z, 0f, forwardFlat.X);
         }
     }
 

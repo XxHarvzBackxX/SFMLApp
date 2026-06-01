@@ -1,4 +1,5 @@
-﻿using SFML.Graphics;
+﻿global using Color = SFML.Graphics.Color;
+using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 using SFMLApp.Infrastructure;
@@ -24,24 +25,29 @@ internal class Program
 
     private const float _mouseSensitivity = 0.005f;
 
+    private static Plane _scenePlane;
+
     private static void Main()
     {
         Window = CreateWindow();
 
         Camera = new Camera
         {
-            Position = new Vector3f(0f, 0f, 0f),
+            Position = new Vector3f(0f, 0f, 20f),
             Rotation = new Vector2f(0f, 0f)
         };
 
-        LightSource redLight  = new( 2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);
+        LightSource redLight  = new(2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);
         LightSource blueLight = new(-2f,  2f,  -8f, 0f, 0f, 0f, 1f, Color.Blue);
+        LightSource greenLight = new(8f, 0f, 0f, 0f, 0f, 0f, 1f, Color.Green);
         LightSource whiteLight = new(0f, -8f, 6f, 4f, 0f, 0f, 1f, Color.White) { Intensity = 40.0f };
+
+        _scenePlane = new Plane(50, 1, 5f);
 
         Cube cube = new(-2f, 2f, -10f, 0f, 0f, 0f, 1f);
 
         Scene = new Scene(
-            lightSources: [redLight, blueLight, whiteLight],
+            lightSources: [redLight, blueLight, whiteLight, greenLight],
             objects:      [cube]);
 
         Clock clock = new();
@@ -73,6 +79,7 @@ internal class Program
     private static void Render()
     {
         Window!.Clear();
+        _scenePlane.Draw(Camera);
         Scene.Render(Camera);
         Window.Display();
     }

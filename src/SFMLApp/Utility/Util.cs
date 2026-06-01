@@ -1,7 +1,6 @@
 ﻿using SFML.Graphics;
 using SFML.System;
 using SFMLApp.Infrastructure;
-using SFMLApp.Shapes.Base;
 
 namespace SFMLApp.Utility;
 
@@ -51,6 +50,17 @@ internal class Util
     public static void Line(Vector2f p1, Vector2f p2, Color color, float width = 3f) => Program.Window!.Draw(SolidLineFactory(p1, p2, width, color));
 
     public static void Quad(Vector2f[] points, Color color)
+    {
+        VertexArray quad = new VertexArray(PrimitiveType.Quads);
+
+        foreach (Vector2f p in points)
+        {
+            quad.Append(new Vertex(p, color));
+        }
+
+        Program.Window!.Draw(quad);
+    }
+    public static void Quad(Color color, params Vector2f[] points)
     {
         VertexArray quad = new VertexArray(PrimitiveType.Quads);
 
@@ -111,6 +121,27 @@ internal class Util
         return new(x, y, point.Z);
     }
 
+    public static Vector2f ProjectPoint(Vector3f modelPoint, float scale, Vector3f rotation, Vector3f objPosition, Camera camera)
+    {
+        Vector3f local = ToLocal(modelPoint, scale, rotation);
+        Vector3f world = ToWorld(local, objPosition);
+        Vector3f view = ToView(world, camera);
+        Vector2f xy = ToXY(view);
+
+        return xy;
+    }
+
+    public static Vector2f[] ProjectPoints(Vector3f[] modelPoints, float scale, Vector3f rotation, Vector3f objPosition, Camera camera)
+    {
+        List<Vector2f> result = new List<Vector2f>();
+        foreach (Vector3f point in modelPoints)
+        {
+            result.Add(ProjectPoint(point, scale, rotation, objPosition, camera));
+        }
+
+        return result.ToArray();
+    }
+
     public static Vector3f ToLocal(Vector3f point, float scale, Vector3f rotation)
     {
         point *= scale;
@@ -128,29 +159,26 @@ internal class Util
     {
         Vector3f translated = worldPoint - camera.Position;
 
-        return ToLocal(
-            translated,
-            1f,
-            new Vector3f(
-                -camera.Rotation.X,
-                -camera.Rotation.Y,
-                0f));
+        Vector3f rY = RotateY(translated, -camera.Rotation.Y);
+        Vector3f rX = RotateX(rY, -camera.Rotation.X);
+
+        return rX;
     }
 
-    public static Vector2f ToXY(Vector3f worldPoint)
+    public static Vector2f ToXY(Vector3f point)
     {
-        worldPoint.X /= -worldPoint.Z;
-        worldPoint.Y /= -worldPoint.Z;
+        point.X /= -point.Z;
+        point.Y /= -point.Z;
 
         Vector2u screenSize = Program.Window!.Size;
 
-        worldPoint.X *= screenSize.X;
-        worldPoint.Y *= screenSize.Y;
+        point.X *= screenSize.X;
+        point.Y *= screenSize.Y;
 
-        worldPoint.X += screenSize.X / 2;
-        worldPoint.Y += screenSize.Y / 2;
+        point.X += screenSize.X / 2;
+        point.Y += screenSize.Y / 2;
 
-        return new Vector2f(worldPoint.X, worldPoint.Y);
+        return new Vector2f(point.X, point.Y);
     }
 
     public static Vector3f Centroid(params Vector3f[] vertices)
