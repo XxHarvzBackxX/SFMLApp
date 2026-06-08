@@ -4,6 +4,7 @@ using SFML.System;
 using SFML.Window;
 using SFMLApp.Infrastructure;
 using SFMLApp.Shapes.Primitives;
+using SFMLApp.Shapes.LandscapeFeatures;
 using SFMLApp.Utility;
 
 namespace SFMLApp;
@@ -33,7 +34,7 @@ internal class Program
 
         Camera = new Camera
         {
-            Position = new Vector3f(0f, 0f, 20f),
+            Position = new Vector3f(0f, 0f, 50f),
             Rotation = new Vector2f(0f, 0f)
         };
 
@@ -42,7 +43,7 @@ internal class Program
         LightSource greenLight = new(8f, 0f, 0f, 0f, 0f, 0f, 1f, Color.Green);
         LightSource whiteLight = new(0f, -8f, 6f, 4f, 0f, 0f, 1f, Color.White) { Intensity = 40.0f };
 
-        _scenePlane = new Plane(50, 1, 5f);
+        _scenePlane = new Plane(50, 1, 0f, new Terrain(new Vector3f(0f, -6f, 0f), 5f), new Terrain(new Vector3f(4f, 3f, 0f), 4f), new Terrain(new Vector3f(-6f, -3f, 4f), 6f));
 
         Cube cube = new(-2f, 2f, -10f, 0f, 0f, 0f, 1f);
 

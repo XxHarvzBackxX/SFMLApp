@@ -247,4 +247,29 @@ internal class Util
     }
 
     public static float Magnitude(Vector3f vector) => MathF.Sqrt((vector.X * vector.X) + (vector.Y * vector.Y) + (vector.Z * vector.Z));
+
+    public static float FlatDistance(Vector3f p1, Vector3f p2)
+    {
+        float dx = p1.X - p2.X;
+        float dz = p1.Z - p2.Z;
+        float distance = MathF.Sqrt((dx * dx) + (dz * dz));
+
+        return distance;
+    }
+
+    public static float Lerp(float a, float b, float t) => a + (b - a) * t;
+
+    public static float SmoothStep(float a, float b, float t)
+    {
+        float t2 = t * t * (3f - 2f * t);
+
+        return Lerp(a, b, t2);
+    }
+
+    public static float SmootherStep(float a, float b, float t)
+    {
+        float t2 = t * t * t * (t * (t * 6f - 15f) + 10f);
+
+        return Lerp(a, b, t2);
+    }
 }

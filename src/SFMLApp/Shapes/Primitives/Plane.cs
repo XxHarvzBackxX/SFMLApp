@@ -1,5 +1,6 @@
 ﻿using SFML.System;
 using SFMLApp.Infrastructure;
+using SFMLApp.Shapes.LandscapeFeatures;
 using SFMLApp.Utility;
 
 namespace SFMLApp.Shapes.Primitives;
@@ -15,7 +16,7 @@ public class Plane
     private int _divisions;
     private Random _rand = new Random();
 
-    public Plane(int divisions = 10, int scale = 1, float height = 0f)
+    public Plane(int divisions = 10, int scale = 1, float height = 0f, params Terrain[] terrains)
     {
         _scale = scale;
         _height = height;
@@ -31,10 +32,28 @@ public class Plane
             {
                 _model[index] = new Vector3f(
                     (x + offset) * _scale,
-                    _height + _rand.Next(-2, 2),
+                    _height, // + _rand.Next(-2, 2),
                     (z + offset) * _scale);
 
                 index++;
+            }
+        }
+
+        if (terrains is not null && terrains.Length > 0) ProcessTerrain(terrains);
+    }
+
+    private void ProcessTerrain(Terrain[] terrains)
+    {
+        for (int i = 0; i < _model.Length; i++)
+        {
+            foreach (Terrain t in terrains)
+            {
+                float height = t.HeightAt(_model[i]);
+                if (height is 0)
+                    continue;
+
+                _model[i].Y += height;
+                break;
             }
         }
     }
