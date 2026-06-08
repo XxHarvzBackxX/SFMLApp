@@ -46,15 +46,14 @@ public class Plane
     {
         for (int i = 0; i < _model.Length; i++)
         {
+            List<float> deltaHeights = new List<float>();
+
             foreach (Terrain t in terrains)
             {
-                float height = t.HeightAt(_model[i]);
-                if (height is 0)
-                    continue;
-
-                _model[i].Y += height;
-                break;
+                deltaHeights.Add(t.HeightAt(_model[i]));
             }
+
+            _model[i].Y += deltaHeights.Sum() / deltaHeights.Count;
         }
     }
 
