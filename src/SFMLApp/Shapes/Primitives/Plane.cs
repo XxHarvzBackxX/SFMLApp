@@ -59,7 +59,19 @@ public class Plane
 
     public void Draw(Camera camera)
     {
-        Vector2f[] projectedPoints = Util.ProjectPoints(_model, _scale, new Vector3f(0, 0, 0), new Vector3f(0, 0, 0), camera);
+        Vector2f[] projectedPoints = new Vector2f[_model.Length];
+        bool[] pointsInView = new bool[_model.Length];
+
+        for (int i = 0; i < _model.Length; i++)
+        {
+            Vector3f localPoint = Util.ToLocal(_model[i], _scale, new Vector3f());
+            Vector3f worldPoint = Util.ToWorld(localPoint, new Vector3f());
+            (Vector3f point, bool inView) = Util.ToView(worldPoint, camera);
+
+            pointsInView[i] = inView;
+            if (inView)
+                projectedPoints[i] = Util.ToXY(point);
+        }
 
         int step = _divisions + 1;
         for (int z = 0; z < _divisions; z++)
@@ -70,6 +82,14 @@ public class Plane
                 int nw = ne + 1;
                 int sw = nw + _divisions;
                 int se = sw + 1;
+
+                if (!pointsInView[ne] ||
+                    !pointsInView[nw] ||
+                    !pointsInView[sw] ||
+                    !pointsInView[se])
+                {
+                    continue;
+                }
 
                 Vector2f neP = projectedPoints[ne];
                 Vector2f nwP = projectedPoints[nw];

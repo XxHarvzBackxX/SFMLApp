@@ -26,7 +26,7 @@ internal class Program
 
     private const float _mouseSensitivity = 0.005f;
 
-    private static Plane _scenePlane;
+    private static Plane _scenePlane = null!;
 
     private static void Main()
     {
@@ -34,8 +34,9 @@ internal class Program
 
         Camera = new Camera
         {
-            Position = new Vector3f(0f, -3f, 30f),
-            Rotation = new Vector2f(0f, 0f)
+            Position = new Vector3f(0f, -3f, 15f),
+            Rotation = new Vector2f(0f, 0f),
+            Projection = new Projection()
         };
 
         LightSource redLight  = new(2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);

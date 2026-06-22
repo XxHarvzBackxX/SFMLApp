@@ -16,17 +16,15 @@ public class Face
         Parent = parent;
     }
 
-    // Faces with a view-space centroid Z closer to the camera than this are clipped.
-    private const float NearPlane = -0.1f;
-
     /// <summary>
     /// Attempts to produce a depth-keyed draw call for this face.
-    /// Returns <see langword="null"/> when the face is culled (backface, behind camera, or on the near plane).
+    /// Returns <see langword="null"/> when the face is outside the camera frustum or backface culled.
     /// </summary>
     public DrawCall? TryGetDrawCall(
         Vector3f[] viewVertices,
         Vector3f[] worldVertices,
         Vector2f[] projectedVertices,
+        bool[] verticesInView,
         Color faceColor,
         Camera camera,
         IReadOnlyList<LightSource> lightSources)
@@ -38,17 +36,18 @@ public class Face
         int i = 0;
         foreach (int index in _vertices)
         {
+            if (!verticesInView[index]) return null;
+
             faceWorldVertices[i] = worldVertices[index];
             faceViewVertices[i] = viewVertices[index];
             faceProjectedVertices[i] = projectedVertices[index];
             i++;
         }
 
-        // cull faces behind the camera or intersecting the near plane
+        // This remains the depth-sort key after the frustum check above.
         float centroidViewZ = 0f;
         foreach (Vector3f v in faceViewVertices) centroidViewZ += v.Z;
         centroidViewZ /= faceViewVertices.Length;
-        if (centroidViewZ >= NearPlane) return null;
 
         // backface culling
         Vector3f toCamera = camera.Position - faceWorldVertices[0];

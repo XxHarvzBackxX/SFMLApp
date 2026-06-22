@@ -125,8 +125,8 @@ internal class Util
     {
         Vector3f local = ToLocal(modelPoint, scale, rotation);
         Vector3f world = ToWorld(local, objPosition);
-        Vector3f view = ToView(world, camera);
-        Vector2f xy = ToXY(view);
+        (Vector3f point, bool inView) view = ToView(world, camera);
+        Vector2f xy = ToXY(view.point);
 
         return xy;
     }
@@ -155,14 +155,24 @@ internal class Util
 
     public static Vector3f ToWorld(Vector3f localPoint, Vector3f position) => localPoint + position;
 
-    public static Vector3f ToView(Vector3f worldPoint, Camera camera)
+    public static (Vector3f point, bool inView) ToView(Vector3f worldPoint, Camera camera)
     {
         Vector3f translated = worldPoint - camera.Position;
 
         Vector3f rY = RotateY(translated, -camera.Rotation.Y);
         Vector3f rX = RotateX(rY, -camera.Rotation.X);
 
-        return rX;
+        float depth = -rX.Z;
+        float halfFieldOfView = camera.Projection.FieldOfView * MathF.PI; // 45 deg as rad
+        float viewExtent = depth * MathF.Tan(halfFieldOfView); // how deep do we go? (get wider the further away we get)
+
+        bool isInView =
+            depth >= camera.Projection.NearPlane && // are we close enough
+            depth <= camera.Projection.FarPlane && // are we far enough
+            MathF.Abs(rX.X) <= viewExtent && // does it fit inside the frustum by X
+            MathF.Abs(rX.Y) <= viewExtent; // does it fit inside the frustum by Y
+
+        return (rX, isInView);
     }
 
     public static Vector2f ToXY(Vector3f point)

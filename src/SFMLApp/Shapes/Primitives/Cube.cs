@@ -47,6 +47,7 @@ public class Cube : Shape3D
     {
         Vector3f[] worldVertices = new Vector3f[_model.Length];
         Vector3f[] viewVertices = new Vector3f[_model.Length];
+        bool[] verticesInView = new bool[_model.Length];
 
         for (int vertexIndex = 0; vertexIndex < _model.Length; vertexIndex++)
         {
@@ -56,14 +57,15 @@ public class Cube : Shape3D
             Vector3f localSpacePoint = Util.ToLocal(modelSpacePoint, Scale, Rotation);
 
             worldVertices[vertexIndex] = Util.ToWorld(localSpacePoint, Position);
-            viewVertices[vertexIndex] = Util.ToView(worldVertices[vertexIndex], camera);
+            (viewVertices[vertexIndex], verticesInView[vertexIndex]) =
+                Util.ToView(worldVertices[vertexIndex], camera);
         }
 
-        // only project vertices that are in front of the camera to avoid garbage projected coordinates
+        // only project vertices inside the camera frustum to avoid crap
         Vector2f[] projectedVertices = new Vector2f[_model.Length];
         for (int vertexIndex = 0; vertexIndex < _model.Length; vertexIndex++)
         {
-            if (viewVertices[vertexIndex].Z < 0f)
+            if (verticesInView[vertexIndex])
                 projectedVertices[vertexIndex] = Util.ToXY(viewVertices[vertexIndex]);
         }
 
@@ -73,6 +75,7 @@ public class Cube : Shape3D
                 viewVertices,
                 worldVertices,
                 projectedVertices,
+                verticesInView,
                 BaseShapeColor,
                 camera,
                 lightSources);
