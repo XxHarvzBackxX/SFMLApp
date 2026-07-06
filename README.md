@@ -1,31 +1,63 @@
 # SFMLApp
 
-A simple, makeshift 3D renderer built with SFML.NET.
-This project is my first exploration into 3D rendering outside of a traditional game engine, focusing on the fundamentals of graphics programming and mathematics.
+SFMLApp is my experimental 3D renderer, written in C# with SFML.NET. It started as a way to explore 3D graphics outside a traditional game engine and learn how the underlying maths and rendering steps fit together.
 
-## Concept
+The current demo renders some bumpy terrain, a cube, a sphere, and several colourful animated lights. Everything is projected into 2D and drawn through SFML. It is still very much a hobby project, not a serious production-ready engine!
 
-SFMLApp is a work-in-progress (WIP) 3D rendering engine that demonstrates how 3D shapes, lighting, and camera movement can be implemented from scratch.
-The goal is to learn and experiment with the core concepts of rendering pipelines, transformations, and lighting calculations, without relying on a full-featured game engine.
+## Current features
 
-## Features
-- Basic 3D shape rendering (e.g., cubes, faces),
-- Simple lighting and shading,
-- Camera controls,
-- Debug visualization tools.
+- Perspective projection with a movable, mouse-controlled camera
+- Cube, UV sphere, plane, and visible light-source primitives
+- Model, world, view, and screen-space transformations
+- Backface and basic camera-frustum culling
+- Painter's-algorithm depth sorting
+- Per-vertex diffuse lighting from multiple coloured point lights, including distance attenuation and ambient brightness
+- Procedurally deformed grid terrain
+- Delta-time-based orbits and vertical oscillation for scene objects
+- Resizable, antialiased SFML window
+- Optional face-edge and centroid debug overlay
 
-## Technologies
-- C# (.NET)
-- [SFML.NET](https://www.sfml-dev.org/download/sfml.net/)
+## Controls
 
-## Status
-This project is a learning exercise and is under active development. Expect bugs, incomplete features, nonsense, and lots of experimentation!
+| Input | Action |
+| --- | --- |
+| `W` / `A` / `S` / `D` | Move the camera horizontally |
+| `Q` / `E` | Move the camera up / down |
+| Hold right mouse button and drag | Look around |
+| Arrow keys | Move the cube on the X/Z axes |
+| `V` / `B` | Move the cube on the Y axis |
+| `R` / `F` | Roll the cube |
+| `T` / `G` | Pitch the cube |
+| `Y` / `H` | Yaw the cube |
+| `Delete` | Toggle the debug overlay |
 
-## Getting Started
-1. Clone the repository
-2. Restore dependencies
-3. Build and run the project
+## Requirements
 
----
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- A platform supported by [SFML.NET 2.6.1](https://www.nuget.org/packages/SFML.Net/2.6.1)
 
-Feel free to explore, learn, and criticise :)
+SFML.NET depends on native CSFML libraries. The NuGet package supplies the required binaries for common desktop runtimes; if startup fails with a missing native-library error, install the matching CSFML libraries for your operating system and architecture.
+
+## Build and run
+
+From the repository root:
+
+```powershell
+dotnet restore src/SFMLApp.slnx
+dotnet build src/SFMLApp.slnx
+dotnet run --project src/SFMLApp/SFMLApp.csproj
+```
+
+## A quick tour of the code
+
+- `Infrastructure` contains the camera, scene, lighting, animation, and drawing flow.
+- `Shapes/Base` contains the shared building blocks for 3D shapes and faces.
+- `Shapes/Primitives` contains the cube, sphere, plane, and light sources.
+- `Shapes/LandscapeFeatures` contains the terrain deformation code.
+- `Utility` contains the maths, projection, and SFML drawing helpers.
+
+## Project status
+
+This is a learning exercise and an active work in progress. The renderer is deliberately makeshift: it sorts faces instead of using a depth buffer, and objects can disappear at the edge of the camera because proper clipping is not implemented yet.
+
+Expect bugs, odd visual edge cases, unfinished ideas, and plenty of experimentation. Feel free to explore, learn from it, or point out the nonsense :)
