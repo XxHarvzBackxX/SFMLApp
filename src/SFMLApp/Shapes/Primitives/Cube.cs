@@ -51,7 +51,7 @@ public class Cube : Shape3D
 
         for (int vertexIndex = 0; vertexIndex < _model.Length; vertexIndex++)
         {
-            int[] vertexCoords = _model[vertexIndex];
+            float[] vertexCoords = _model[vertexIndex];
 
             Vector3f modelSpacePoint = new(vertexCoords[0], vertexCoords[1], vertexCoords[2]);
             Vector3f localSpacePoint = Util.ToLocal(modelSpacePoint, Scale, Rotation);

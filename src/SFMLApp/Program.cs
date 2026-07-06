@@ -11,8 +11,23 @@ namespace SFMLApp;
 
 internal class Program
 {
+    private const string WindowTitle = "SFML App";
+    private const uint WindowWidth = 1024;
+    private const uint WindowHeight = 768;
+    private const uint FramerateLimit = 60;
+    private const Styles WindowStyle = Styles.Resize | Styles.Close;
+
+    private static readonly ContextSettings GraphicsContext = new(
+        depthBits: 0,
+        stencilBits: 0,
+        antialiasingLevel: 8,
+        majorVersion: 1,
+        minorVersion: 1,
+        attributes: ContextSettings.Attribute.Default,
+        sRgbCapable: false);
+
     public static RenderWindow? Window { get; private set; }
-    public static readonly VideoMode VideoMode = new(1024, 768);
+    public static readonly VideoMode VideoMode = new(WindowWidth, WindowHeight);
 
     public static Camera Camera = null!;
     public static Scene Scene = null!;
@@ -23,10 +38,7 @@ internal class Program
     private const float _rotationSpeed = 0.01f;
     private static bool _isRightMouseDragging;
     private static Vector2i _lastMousePosition;
-
     private const float _mouseSensitivity = 0.005f;
-
-    private static Plane _scenePlane = null!;
 
     private static void Main()
     {
@@ -39,18 +51,49 @@ internal class Program
             Projection = new Projection()
         };
 
-        LightSource redLight  = new(2f, -2f, -10f, 0f, 0f, 0f, 1f, Color.Red);
-        LightSource blueLight = new(-2f,  2f,  -8f, 0f, 0f, 0f, 1f, Color.Blue);
-        LightSource greenLight = new(8f, 0f, 0f, 0f, 0f, 0f, 1f, Color.Green);
-        LightSource whiteLight = new(0f, -8f, 6f, 4f, 0f, 0f, 1f, Color.White) { Intensity = 40.0f };
+        LightSource redLight  = new(2f, -4f, -10f, 0f, 0f, 0f, 0.5f, Color.Red);
+        LightSource redLight2 = new(5f, -3f, 6f, 0f, 0f, 0f, 0.5f, Color.Red) { Intensity = 10.0f };
+        LightSource blueLight = new(-2f, -2f,  -8f, 0f, 0f, 0f, 0.5f, Color.Blue);
+        LightSource blueLight2 = new(0, -3f, 2f, 0f, 0f, 0f, 0.5f, Color.Blue) { Intensity = 10.0f };
+        LightSource greenLight = new(8f, 0f, 0f, 0f, 0f, 0f, 0.5f, Color.Green);
+        LightSource whiteLight = new(0f, -8f, 6f, 4f, 0f, 0f, 1f, Color.White) { Intensity = 60.0f };
 
-        _scenePlane = new Plane(50, 1, 0f, new Terrain(new Vector3f(0f, -9f, 0f), 5f), new Terrain(new Vector3f(4f, 5f, 0f), 4f), new Terrain(new Vector3f(-6f, -5f, 4f), 6f));
+        Plane scenePlane = new(50, 1, 0f, new Terrain(new Vector3f(0f, -9f, 0f), 5f), new Terrain(new Vector3f(4f, 5f, 0f), 4f), new Terrain(new Vector3f(-6f, -5f, 4f), 6f));
+        scenePlane.Position.Y += 6f;
 
-        Cube cube = new(-2f, 2f, -10f, 0f, 0f, 0f, 1f);
+        Cube cube = new(-2f, -2f, -10f);
+        Sphere sphere = new(0f, -3f, 7f, layers: 32, slices: 64, baseShapeColor: new SFML.Graphics.Color(200, 200, 200));
+
+        Orbit sphereOrbit = new(sphere, whiteLight)
+        {
+            Axis = OrbitAxis.X,
+            Radius = 7.5f,
+            AngularSpeed = 0.5f
+        };
+
+        Orbit redLightOrbit = new(redLight2, sphere)
+        {
+            Axis = OrbitAxis.Y,
+            Radius = 5f,
+            AngularSpeed = 0.7f,
+            PhaseOffset = 0f,
+            VerticalOscillationAmplitude = 2f,
+            VerticalOscillationSpeed = 1.5f,
+        };
+
+        Orbit blueLightOrbit = new(blueLight2, sphere)
+        {
+            Axis = OrbitAxis.Y,
+            Radius = 5f,
+            AngularSpeed = 0.7f * 1.08f,
+            PhaseOffset = MathF.PI,
+            VerticalOscillationAmplitude = 0f
+        };
 
         Scene = new Scene(
-            lightSources: [redLight, blueLight, whiteLight, greenLight],
-            objects:      [cube]);
+            lightSources: [redLight, blueLight, whiteLight, /*greenLight,*/ redLight2, blueLight2],
+            objects:      [scenePlane, cube, sphere],
+            updatables:   [sphereOrbit, redLightOrbit, blueLightOrbit]);
 
         Clock clock = new();
 
@@ -72,25 +115,22 @@ internal class Program
     private static void Update(Cube cube, float deltaTime)
     {
         HandleInput(cube, deltaTime);
+        Scene.Update(deltaTime); // physics? collisions? animations?
 
-        // physics?
-        // collisions?
-        // animations?
     }
 
     private static void Render()
     {
         Window!.Clear();
-        _scenePlane.Draw(Camera);
         Scene.Render(Camera);
         Window.Display();
     }
 
     private static RenderWindow CreateWindow()
     {
-        RenderWindow window = new(VideoMode, "SFML Window", Styles.Resize | Styles.Close);
+        RenderWindow window = new(VideoMode, WindowTitle, WindowStyle, GraphicsContext);
 
-        window.SetFramerateLimit(60);
+        window.SetFramerateLimit(FramerateLimit);
         window.SetKeyRepeatEnabled(false);
 
         window.Closed += (_, __) => window.Close();
@@ -151,13 +191,13 @@ internal class Program
         HandleCubeRotation(cube);
 
         
-        // KEBAB / ADELE / TUMBLE DRYER
+        // kebab / adele / tumble dryer
 
         // cube.Rotation = new Vector3f(cube.Rotation.X, cube.Rotation.Y + RotationSpeed, cube.Rotation.Z); 
         // kebab
 
         // cube.Rotation = new Vector3f(cube.Rotation.X + RotationSpeed, cube.Rotation.Y, cube.Rotation.Z); 
-        // Adele
+        // adele
 
         // cube.Rotation = new Vector3f(cube.Rotation.X, cube.Rotation.Y, cube.Rotation.Z + RotationSpeed); 
         // tumble dryer
@@ -171,7 +211,7 @@ internal class Program
 
     private static void HandleCameraMovement(float speed)
     {
-        // WASD lateral cam movement / QE for vertical cam movement
+        // lateral cam movement: WASD / vertical cam movement: QE
 
         Vector3f movement = new(0f, 0f, 0f);
 
@@ -222,7 +262,7 @@ internal class Program
 
     private static void HandleCubeRotation(Cube cube)
     {
-        // R/F = roll, T/G = pitch, Y/H = yaw
+        // roll: R/F, pitch: T/G, yaw: Y/H
 
         if (Keyboard.IsKeyPressed(Keyboard.Key.R))
             cube.Rotation.Z += _rotationSpeed;

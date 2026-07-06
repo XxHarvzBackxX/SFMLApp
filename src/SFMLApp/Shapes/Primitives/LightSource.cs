@@ -2,7 +2,7 @@
 
 namespace SFMLApp.Shapes.Primitives;
 
-public class LightSource : Cube
+public class LightSource : Sphere
 {
     public float Intensity { get; set; } = 6.0f;
     public float MinimumBrightness { get; set; } = 0.1f;
@@ -16,7 +16,15 @@ public class LightSource : Cube
         float rotZ = 0f,
         float scale = 1f,
         Color? color = null)
-        : base(posX, posY, posZ, rotX, rotY, rotZ, scale, color ?? Color.Blue)
+        : base(
+            posX: posX,
+            posY: posY,
+            posZ: posZ,
+            rotX: rotX,
+            rotY: rotY,
+            rotZ: rotZ,
+            scale: scale,
+            baseShapeColor: color ?? Color.Blue)
     {
     }
 }

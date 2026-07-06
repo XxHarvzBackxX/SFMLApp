@@ -20,7 +20,7 @@ public abstract class Shape3D
     /// <summary>
     /// Represents vertices
     /// </summary>
-    protected int[][] _model { get; set; } = null!;
+    protected float[][] _model { get; set; } = null!;
 
     public abstract IEnumerable<DrawCall> CollectFaces(Camera camera, IReadOnlyList<LightSource> lightSources);
 }

@@ -7,21 +7,39 @@ public class Scene
 {
     private readonly List<Shape3D> _objects = [];
     private readonly List<LightSource> _lightSources = [];
+    private readonly List<ISceneUpdatable> _updatables = [];
 
     public IReadOnlyList<LightSource> LightSources => _lightSources;
     public IReadOnlyList<Shape3D> Objects => _objects;
+    public IReadOnlyList<ISceneUpdatable> Updatables => _updatables;
 
-    public Scene(IEnumerable<LightSource>? lightSources = null, IEnumerable<Shape3D>? objects = null)
+    public Scene(
+        IEnumerable<LightSource>? lightSources = null,
+        IEnumerable<Shape3D>? objects = null,
+        IEnumerable<ISceneUpdatable>? updatables = null)
     {
         foreach (LightSource light in lightSources ?? [])
             AddLight(light);
 
         foreach (Shape3D obj in objects ?? [])
             Add(obj);
+
+        foreach (ISceneUpdatable updatable in updatables ?? [])
+            AddUpdatable(updatable);
     }
 
     public void Add(Shape3D shape) => _objects.Add(shape);
     public void Remove(Shape3D shape) => _objects.Remove(shape);
+
+    public void AddUpdatable(ISceneUpdatable updatable) => _updatables.Add(updatable);
+    public void RemoveUpdatable(ISceneUpdatable updatable) => _updatables.Remove(updatable);
+
+    public void Update(float deltaTime)
+    {
+        // register hierarchical motion from parent to child
+        foreach (ISceneUpdatable updatable in _updatables)
+            updatable.Update(deltaTime);
+    }
 
     public void AddLight(LightSource lightSource)
     {

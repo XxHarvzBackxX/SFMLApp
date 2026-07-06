@@ -7,7 +7,7 @@ public class Camera
 {
     public Projection Projection = null!;
     public Vector3f Position;
-    public Vector2f Rotation; // X = pitch, Y = yaw
+    public Vector2f Rotation; // pitch (X), yaw (Y)
 
     public Vector3f Forward
     {
@@ -52,7 +52,7 @@ public class Camera
 
 public class Projection
 {
-    public float FieldOfView { get; set; } = 0.25f; // 90 deg
+    public float FieldOfView { get; set; } = 0.3f; // 108 deg
     public float NearPlane { get; set; } = 0.1f;
     public float FarPlane { get; set; } = 100f;
 }

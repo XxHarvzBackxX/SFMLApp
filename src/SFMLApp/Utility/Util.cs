@@ -181,9 +181,12 @@ internal class Util
         point.Y /= -point.Z;
 
         Vector2u screenSize = Program.Window!.Size;
+        float screenScale = MathF.Min(screenSize.X, screenSize.Y);
 
-        point.X *= screenSize.X;
-        point.Y *= screenSize.Y;
+        // use a uniform projection scale so the window's aspect ratio does not
+        // stretch or squash geometry.
+        point.X *= screenScale;
+        point.Y *= screenScale;
 
         point.X += screenSize.X / 2;
         point.Y += screenSize.Y / 2;
@@ -282,4 +285,8 @@ internal class Util
 
         return Lerp(a, b, t2);
     }
+
+    public static Vector3f VectorFromArray(float[] arr) => new Vector3f(arr[0], arr[1], arr[2]);
+
+    public static float[] ArrayFromVector(Vector3f vector) => [ vector.X, vector.Y, vector.Z ];
 }

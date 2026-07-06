@@ -1,5 +1,4 @@
-﻿using SFML.Graphics;
-using SFML.System;
+﻿using SFML.System;
 using SFMLApp.Infrastructure;
 using SFMLApp.Shapes.Primitives;
 using SFMLApp.Utility;
@@ -44,28 +43,44 @@ public class Face
             i++;
         }
 
-        // This remains the depth-sort key after the frustum check above.
+        // this remains the depth-sort key after the frustum check above
         float centroidViewZ = 0f;
         foreach (Vector3f v in faceViewVertices) centroidViewZ += v.Z;
         centroidViewZ /= faceViewVertices.Length;
 
-        // backface culling
+        Vector3f faceNormal = Util.Cross(
+            faceWorldVertices[0],
+            faceWorldVertices[1],
+            faceWorldVertices[2]);
         Vector3f toCamera = camera.Position - faceWorldVertices[0];
-        Vector3f normal = Util.Cross(faceWorldVertices[0], faceWorldVertices[1], faceWorldVertices[2]);
-        if (Util.Dot(toCamera, normal) <= 0f) return null;
+        if (Util.Dot(toCamera, faceNormal) <= 0f) return null;
 
-        bool isEmissive = Parent is LightSource;
-        Color[] vertexColors = new Color[_vertices.Length];
-
-        if (!isEmissive)
+        Vector3f[] normals = new Vector3f[_vertices.Length];
+        if (Parent is not Sphere)
         {
             for (int v = 0; v < _vertices.Length; v++)
-                vertexColors[v] = LightingEngine.ComputeLitColor(faceWorldVertices[v], normal, faceColor, lightSources);
+                normals[v] = faceNormal;
         }
         else
         {
             for (int v = 0; v < _vertices.Length; v++)
+                normals[v] = Util.Normalize(faceWorldVertices[v] - Parent.Position);
+        }
+
+        bool isEmissive = Parent is LightSource;
+        Color[] vertexColors = new Color[_vertices.Length];
+
+        for (int v = 0; v < _vertices.Length; v++)
+        {
+            if (!isEmissive)
+            {
+                vertexColors[v] = LightingEngine.ComputeLitColor(
+                    faceWorldVertices[v], normals[v], faceColor, lightSources);
+            }
+            else
+            {
                 vertexColors[v] = faceColor;
+            }
         }
 
         return new DrawCall(centroidViewZ, () =>
@@ -85,10 +100,10 @@ public class Face
             Vector2f projectedCentroid = Util.ToXY(centroidView);
             Util.Circle(projectedCentroid, Color.Green, 5f);
 
-            Vector3f normalEnd = centroidView + normal / 2;
-            Vector2f projectedNormalEnd = Util.ToXY(normalEnd);
-            Util.GradientLine(projectedCentroid, projectedNormalEnd, Color.Green, Color.Red);
-            Util.Circle(projectedNormalEnd, Color.Red, 5f);
+            //Vector3f normalEnd = centroidView + normal / 2;
+            //Vector2f projectedNormalEnd = Util.ToXY(normalEnd);
+            //Util.GradientLine(projectedCentroid, projectedNormalEnd, Color.Green, Color.Red);
+            //Util.Circle(projectedNormalEnd, Color.Red, 5f);
         });
     }
 }
