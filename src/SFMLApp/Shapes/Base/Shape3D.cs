@@ -22,5 +22,7 @@ public abstract class Shape3D
     /// </summary>
     protected float[][] _model { get; set; } = null!;
 
+    public virtual Vector3f GetVertexNormal(int vertexIndex, Vector3f worldPoint, Vector3f faceNormal) => faceNormal;
+
     public abstract IEnumerable<DrawCall> CollectFaces(Camera camera, IReadOnlyList<LightSource> lightSources);
 }

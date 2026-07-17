@@ -94,6 +94,9 @@ namespace SFMLApp.Shapes.Primitives
             Faces = faces.ToArray();
         }
 
+        public override Vector3f GetVertexNormal(int vertexIndex, Vector3f worldPoint, Vector3f faceNormal) =>
+            Util.Normalize(worldPoint - Position);
+
         public override IEnumerable<DrawCall> CollectFaces(Camera camera, IReadOnlyList<LightSource> lightSources)
         {
             Vector3f[] worldVertices = new Vector3f[_model.Length];

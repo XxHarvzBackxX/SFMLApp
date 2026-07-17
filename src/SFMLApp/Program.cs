@@ -62,7 +62,8 @@ internal class Program
         scenePlane.Position.Y += 6f;
 
         Cube cube = new(-2f, -2f, -10f);
-        Sphere sphere = new(0f, -3f, 7f, layers: 32, slices: 64, baseShapeColor: new SFML.Graphics.Color(200, 200, 200));
+        Sphere sphere = new(0f, -3f, 7f, layers: 32, slices: 64, baseShapeColor: new Color(200, 200, 200));
+        Torus onionRing = new(4f, -3f, 2f, rotX: 0.45f, rotY: 0.2f, radius: 1.75f, thickness: 0.45f, segments: 64, tubeSegments: 20, baseShapeColor: new Color(220, 160, 80));
 
         Orbit sphereOrbit = new(sphere, whiteLight)
         {
@@ -92,7 +93,7 @@ internal class Program
 
         Scene = new Scene(
             lightSources: [redLight, blueLight, whiteLight, /*greenLight,*/ redLight2, blueLight2],
-            objects:      [scenePlane, cube, sphere],
+            objects:      [scenePlane, cube, sphere, onionRing],
             updatables:   [sphereOrbit, redLightOrbit, blueLightOrbit]);
 
         Clock clock = new();

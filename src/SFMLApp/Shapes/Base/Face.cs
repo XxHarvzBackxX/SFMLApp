@@ -56,16 +56,8 @@ public class Face
         if (Util.Dot(toCamera, faceNormal) <= 0f) return null;
 
         Vector3f[] normals = new Vector3f[_vertices.Length];
-        if (Parent is not Sphere)
-        {
-            for (int v = 0; v < _vertices.Length; v++)
-                normals[v] = faceNormal;
-        }
-        else
-        {
-            for (int v = 0; v < _vertices.Length; v++)
-                normals[v] = Util.Normalize(faceWorldVertices[v] - Parent.Position);
-        }
+        for (int v = 0; v < _vertices.Length; v++)
+            normals[v] = Parent.GetVertexNormal(_vertices[v], faceWorldVertices[v], faceNormal);
 
         bool isEmissive = Parent is LightSource;
         Color[] vertexColors = new Color[_vertices.Length];

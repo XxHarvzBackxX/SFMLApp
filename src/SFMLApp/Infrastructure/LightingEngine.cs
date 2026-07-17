@@ -24,7 +24,7 @@ public static class LightingEngine
             Vector3f toLightDir = Util.Normalize(toLight);
             float distance = Util.Magnitude(toLight);
 
-            float diffuse = Math.Max(0f, Util.Dot(toLightDir, normal));
+            float diffuse = Math.Max(0f, Util.Dot(toLightDir, normal)); // TODO: look at gamma correction for new colour blending ?
 
             float contribution = diffuse * light.Intensity / (distance * distance);
 
