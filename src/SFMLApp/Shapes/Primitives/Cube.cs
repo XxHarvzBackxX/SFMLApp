@@ -1,5 +1,4 @@
-﻿using SFML.Graphics;
-using SFML.System;
+﻿using SFML.System;
 using SFMLApp.Infrastructure;
 using SFMLApp.Shapes.Base;
 using SFMLApp.Utility;
@@ -81,7 +80,7 @@ public class Cube : Shape3D
                 lightSources);
 
             if (drawCall is not null)
-                yield return drawCall;
+                yield return drawCall.Value;
         }
     }
 }

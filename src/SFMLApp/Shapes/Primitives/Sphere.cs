@@ -135,7 +135,7 @@ namespace SFMLApp.Shapes.Primitives
                     lightSources);
 
                 if (drawCall is not null)
-                    yield return drawCall;
+                    yield return drawCall.Value;
             }
         }
     }

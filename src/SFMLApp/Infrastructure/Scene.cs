@@ -1,3 +1,4 @@
+using SFML.Graphics;
 using SFMLApp.Shapes.Base;
 using SFMLApp.Shapes.Primitives;
 
@@ -8,6 +9,7 @@ public class Scene
     private readonly List<Shape3D> _objects = [];
     private readonly List<LightSource> _lightSources = [];
     private readonly List<ISceneUpdatable> _updatables = [];
+    private readonly List<DrawCall> _drawCalls = [];
 
     public IReadOnlyList<LightSource> LightSources => _lightSources;
     public IReadOnlyList<Shape3D> Objects => _objects;
@@ -55,15 +57,39 @@ public class Scene
 
     public void Render(Camera camera)
     {
-        List<DrawCall> drawCalls = [];
+        _drawCalls.Clear();
 
         foreach (Shape3D obj in _objects)
-            drawCalls.AddRange(obj.CollectFaces(camera, _lightSources));
+            _drawCalls.AddRange(obj.CollectFaces(camera, _lightSources));
 
         // sort back-to-front (most negative Z is furthest away)
-        drawCalls.Sort(static (a, b) => a.Depth.CompareTo(b.Depth));
+        _drawCalls.Sort(static (a, b) => a.Depth.CompareTo(b.Depth));
 
-        foreach (DrawCall drawCall in drawCalls)
-            drawCall.Draw();
+        // submit every depth-sorted quad in one native SFML draw call
+        using VertexArray vertices = new(PrimitiveType.Quads, (uint)(_drawCalls.Count * 4));
+        uint vertexIndex = 0;
+        foreach (DrawCall drawCall in _drawCalls)
+        {
+            vertices[vertexIndex++] = drawCall.Vertex0;
+            vertices[vertexIndex++] = drawCall.Vertex1;
+            vertices[vertexIndex++] = drawCall.Vertex2;
+            vertices[vertexIndex++] = drawCall.Vertex3;
+        }
+
+        Program.Window!.Draw(vertices);
+
+        if (Program.DebugView)
+        {
+            foreach (DrawCall drawCall in _drawCalls)
+            {
+                Vertex[] quad = [drawCall.Vertex0, drawCall.Vertex1, drawCall.Vertex2, drawCall.Vertex3];
+                for (int i = 0; i < quad.Length; i++)
+                    Utility.Util.GradientLine(quad[i].Position, quad[(i + 1) % quad.Length].Position, Color.Blue, Color.Cyan);
+
+                SFML.System.Vector2f centroid =
+                    (quad[0].Position + quad[1].Position + quad[2].Position + quad[3].Position) / 4f;
+                Utility.Util.Circle(centroid, Color.Green, 5f);
+            }
+        }
     }
 }

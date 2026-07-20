@@ -6,6 +6,7 @@ using SFMLApp.Infrastructure;
 using SFMLApp.Shapes.Primitives;
 using SFMLApp.Shapes.LandscapeFeatures;
 using SFMLApp.Utility;
+using SFMLApp.Shapes;
 
 namespace SFMLApp;
 
@@ -64,6 +65,20 @@ internal class Program
         Cube cube = new(-2f, -2f, -10f);
         Sphere sphere = new(0f, -3f, 7f, layers: 32, slices: 64, baseShapeColor: new Color(200, 200, 200));
         Torus onionRing = new(4f, -3f, 2f, rotX: 0.45f, rotY: 0.2f, radius: 1.75f, thickness: 0.45f, segments: 64, tubeSegments: 20, baseShapeColor: new Color(220, 160, 80));
+        ObjModel teapot = new(
+            Path.Combine(AppContext.BaseDirectory, "assets", "utah_teapot.obj"),
+            posX: 10f,
+            posY: -1.5f,
+            rotZ: MathF.PI,
+            scale: 1.5f,
+            baseShapeColor: new Color(210, 210, 220));
+        ObjModel car = new(
+            Path.Combine(AppContext.BaseDirectory, "assets", "car.obj"),
+            posX: -10f,
+            posY: 0f,
+            rotZ: MathF.PI,
+            scale: 0.003f,
+            baseShapeColor: new Color(210, 210, 220));
 
         Orbit sphereOrbit = new(sphere, whiteLight)
         {
@@ -93,7 +108,7 @@ internal class Program
 
         Scene = new Scene(
             lightSources: [redLight, blueLight, whiteLight, /*greenLight,*/ redLight2, blueLight2],
-            objects:      [scenePlane, cube, sphere, onionRing],
+            objects:      [scenePlane, cube, sphere, onionRing, teapot, car],
             updatables:   [sphereOrbit, redLightOrbit, blueLightOrbit]);
 
         Clock clock = new();

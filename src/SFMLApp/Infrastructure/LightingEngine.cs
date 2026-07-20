@@ -21,12 +21,15 @@ public static class LightingEngine
             ambient = Math.Max(ambient, light.MinimumBrightness);
 
             Vector3f toLight = light.Position - worldPoint;
-            Vector3f toLightDir = Util.Normalize(toLight);
-            float distance = Util.Magnitude(toLight);
+            float distanceSquared = Util.Dot(toLight, toLight);
+            if (distanceSquared <= float.Epsilon)
+                continue;
+
+            Vector3f toLightDir = toLight / MathF.Sqrt(distanceSquared);
 
             float diffuse = Math.Max(0f, Util.Dot(toLightDir, normal)); // TODO: look at gamma correction for new colour blending ?
 
-            float contribution = diffuse * light.Intensity / (distance * distance);
+            float contribution = diffuse * light.Intensity / distanceSquared;
 
             r += (light.BaseShapeColor.R / 255f) * contribution;
             g += (light.BaseShapeColor.G / 255f) * contribution;

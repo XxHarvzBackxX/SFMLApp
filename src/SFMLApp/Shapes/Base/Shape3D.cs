@@ -1,5 +1,4 @@
 ﻿using SFML.System;
-using SFML.Graphics;
 using SFMLApp.Infrastructure;
 using SFMLApp.Shapes.Primitives;
 

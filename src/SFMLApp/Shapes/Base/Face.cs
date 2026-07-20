@@ -75,27 +75,11 @@ public class Face
             }
         }
 
-        return new DrawCall(centroidViewZ, () =>
-        {
-            Util.Quad(faceProjectedVertices, vertexColors);
-
-            if (!Program.DebugView) return;
-
-            for (int j = 0; j < faceProjectedVertices.Length; j++)
-            {
-                Vector2f point1 = faceProjectedVertices[j];
-                Vector2f point2 = faceProjectedVertices[(j + 1) % faceProjectedVertices.Length]; // wrap around to 0 for i == length
-                Util.GradientLine(point1, point2, Color.Blue, Color.Cyan);
-            }
-
-            Vector3f centroidView = Util.Centroid(faceViewVertices);
-            Vector2f projectedCentroid = Util.ToXY(centroidView);
-            Util.Circle(projectedCentroid, Color.Green, 5f);
-
-            //Vector3f normalEnd = centroidView + normal / 2;
-            //Vector2f projectedNormalEnd = Util.ToXY(normalEnd);
-            //Util.GradientLine(projectedCentroid, projectedNormalEnd, Color.Green, Color.Red);
-            //Util.Circle(projectedNormalEnd, Color.Red, 5f);
-        });
+        return new DrawCall(
+            centroidViewZ,
+            new SFML.Graphics.Vertex(faceProjectedVertices[0], vertexColors[0]),
+            new SFML.Graphics.Vertex(faceProjectedVertices[1], vertexColors[1]),
+            new SFML.Graphics.Vertex(faceProjectedVertices[2], vertexColors[2]),
+            new SFML.Graphics.Vertex(faceProjectedVertices[3], vertexColors[3]));
     }
 }

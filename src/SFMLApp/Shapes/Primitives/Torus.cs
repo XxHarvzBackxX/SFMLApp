@@ -138,7 +138,7 @@ public class Torus : Shape3D
                 lightSources);
 
             if (drawCall is not null)
-                yield return drawCall;
+                yield return drawCall.Value;
         }
     }
 }
